@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dr. Wahyu Satya Gumelar, M.MPd — Portofolio &amp; Tautan Akses</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+</head>
+<body>
+
+<nav class="navbar">
+  <div class="brand">
+    <span class="dot"></span>
+    <span>Dr. Wahyu Satya Gumelar, M.MPd</span>
+  </div>
+  
+  <ul class="nav-links" id="navLinks">
+    <li><a href="#beranda">Beranda</a></li>
+    <li><a href="#tautan">Tautan</a></li>
+    <li><a href="#tentang">Tentang</a></li>
+    <li><a href="#pengunjung">Pengunjung</a></li>
+  </ul>
+  
+  <div class="nav-linksLogin" id="navLinksLogin">
+    <button class="btn-masuk" onclick="toggleLoginBox()" id="loginToggleBtn">Masuk</button>
+  </div>
+  
+  <button class="nav-toggle" id="navToggle" onclick="toggleNav()" aria-label="Buka menu">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+
+<section class="wrap hero" id="beranda">
+  <div>
+    <h1>Saya <span class="accent">Dr. Wahyu Satya Gumelar, M.MPd</span><br>Dosen &amp; Peneliti Pendidikan Bahasa Inggris.</h1>
+    <p>Dr. Wahyu Satya Gumelar, S.Pd., M.M.Pd. adalah dosen tetap di Program Studi Pendidikan Bahasa Inggris, Universitas Islam Nusantara (UNINUS) Bandung [FKIP UNINUS]. Menyandang jabatan fungsional Lektor, beliau mendedikasikan dirinya dalam pengajaran komunikasi bahasa, riset manajemen pendidikan, serta bimbingan mahasiswa berbasis teknologi dan pendekatan interaktif. Selain aktif di ruang kelas, beliau mengemban amanah sebagai Kepala Biro Komunikasi dan Informasi (BKI) UNINUS [BKI UNINUS] dan dipercaya sebagai ahli bahasa (interpreter) resmi kepolisian [Polda Jawa Barat].</p>
+    <div class="hero-btns">
+      <a href="#tautan" class="btn-primary">Lihat Semua Tautan <span class="circle">→</span></a>
+      <a href="#tentang" class="btn-outline">Tentang Saya</a>
+    </div>
+  </div>
+  <div class="hero-photo">
+    <div class="blob"></div>
+    <div class="avatar-ring" id="avatarRing">
+      <img id="profilePhoto" alt="Foto Dr. Wahyu Satya Gumelar" style="display:none;">
+      <svg id="avatarPlaceholder" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="12" cy="8" r="4" stroke="currentColor" stroke-width="1.5"/>
+        <path d="M4 20c0-3.5 3.5-6 8-6s8 2.5 8 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+      </svg>
+    </div>
+    <div class="badge-float b1">🎓 Dosen Tetap</div>
+    <div class="badge-float b2">📚 Peneliti Aktif</div>
+  </div>
+</section>
+
+<section class="wrap links-section" id="tautan">
+  <div class="section-head">
+    <div>
+      <div class="eyebrow">Direktori Akses</div>
+      <h2><span class="accent">Tautan</span> yang Tersedia</h2>
+    </div>
+  </div>
+
+  <div class="link-grid" id="linkGrid"></div>
+
+  <!-- ===== PANEL PEMILIK — cuma tampil kalau sudah login ===== -->
+  <div class="owner-panel" id="ownerPanel" style="display:none;">
+    <div class="owner-panel-head" onclick="toggleOwnerForm()">
+      <h3><span class="lock">＋</span> Panel Pemilik — Tambah Tautan Baru</h3>
+      <span class="chevron" id="chevron">▾</span>
+    </div>
+    <p class="owner-note">Bagian ini khusus untuk pemilik akun mengelola tautan. Pengunjung biasa tidak akan melihat form ini setelah tersambung ke sistem login (saat backend dipasang).</p>
+    <form class="owner-form" id="ownerForm" onsubmit="return addLink(event)">
+      <div>
+        <label>Judul Tautan</label>
+        <input type="text" id="inTitle" placeholder="contoh: Google Scholar" required>
+      </div>
+      <div>
+        <label>Alamat URL</label>
+        <input type="url" id="inUrl" placeholder="https://..." required>
+      </div>
+      <div class="full">
+        <label>Deskripsi Singkat</label>
+        <textarea id="inDesc" placeholder="contoh: Kutipan dan daftar publikasi internasional"></textarea>
+      </div>
+      <div class="full actions">
+        <button type="submit" class="add-btn">Tambahkan Tautan</button>
+      </div>
+    </form>
+  </div>
+</section>
+
+<section class="about" id="tentang">
+  <div class="wrap">
+    <div class="eyebrow">Tentang Dosen</div>
+    <h2>Mengenal <span class="accent">Dr. Wahyu Satya Gumelar</span></h2>
+
+    <div class="about-grid" id="aboutGrid"></div>
+     
+<div class="container-about">
+  
+  <div class="about-card">
+    <div class="about-card-head" onclick="toggleAbout(this)">
+      <div class="about-card-title">
+         <h4>Latar Belakang Akademik</h4>
+      </div>
+      <span class="about-chevron">▼</span>
+    </div>
+    <ul class="about-list">
+      <p>Dr. Wahyu Satya Gumelar, S.Pd., M.M.Pd., menempuh seluruh jenjang pendidikan tingginya dengan fokus yang kuat pada bidang kependidikan dan manajemen. Beliau mengawali perjalanan akademisnya dengan meraih gelar Sarjana Pendidikan (S.Pd.) yang menjadi fondasi keahliannya dalam dunia pengajaran. Dedikasinya terhadap dunia pendidikan kemudian berlanjut ke jenjang pascasarjana, di mana beliau berhasil menyelesaikan studi Magister Manajemen Pendidikan (M.M.Pd.) untuk mendalami tata kelola dan administrasi lembaga pendidikan. Tidak berhenti di situ, beliau memantapkan kepakaran akademisnya hingga meraih gelar Doktor (Dr.) di bidang kependidikan. Kombinasi latar belakang tata bahasa, manajemen, dan ilmu pendidikan formal inilah yang membentuk kompetensinya hingga kini dipercaya menjadi dosen sekaligus pejabat struktural di Universitas Islam Nusantara.</p>
+    </ul>
+  </div>
+
+  <div class="about-card">
+    <div class="about-card-head" onclick="toggleAbout(this)">
+      <div class="about-card-title">
+        <h4>Fokus Penelitian</h4>
+      </div>
+      <span class="about-chevron">▼</span>
+    </div>
+    <ul class="about-list">
+      <p>Fokus penelitian Dr. Wahyu Satya Gumelar, S.Pd., M.M.Pd., berpusat pada integrasi metode pengajaran bahasa Inggris praktis dan manajemen kebijakan pendidikan makro. Pada ranah pedagogi bahasa, kajian beliau secara konsisten mengeksplorasi strategi peningkatan keterampilan makro siswa, seperti kemampuan membaca teks deskriptif dan keterampilan berbicara interaktif melalui model pembelajaran penemuan serta kolaboratif. Sejalan dengan latar belakang manajemen kependidikannya, lini riset beliau juga meluas ke ranah tata kelola institusi, yang mencakup analisis implementasi Kurikulum Merdeka di sekolah menengah kejuruan hingga evaluasi model Manajemen Berbasis Sekolah untuk membangun efektivitas sekolah produktif di wilayah Jawa Barat.S</p>
+    </ul>
+  </div>
+
+  <div class="about-card">
+    <div class="about-card-head" onclick="toggleAbout(this)">
+      <div class="about-card-title">
+        <h4>Mata Kuliah yang Ditampu</h4>
+      </div>
+      <span class="about-chevron">▼</span>
+    </div>
+    <ul class="about-list">
+      <li>English Language Acquisition (Pemerolehan Bahasa Inggris)</li>
+      <li>Reading Compositions (Komposisi dan Pemahaman Membaca)</li>
+      <li>Interactive Speaking & Communication (Keterampilan Berbicara Interaktif)</li>
+      <li>Kapita Selekta Kebijakan Publik Pendidikan (Khusus rumpun ilmu manajemen & analisis birokrasi kependidikan) Dr. Wahyu Satya Gumelar di Google Scholar</li>
+    </ul>
+  </div>
+
+  <div class="about-card">
+    <div class="about-card-head" onclick="toggleAbout(this)">
+      <div class="about-card-title">
+        <h4>Pendekatan Mengajar</h4>
+      </div>
+      <span class="about-chevron">▼</span>
+    </div>
+    <ul class="about-list">
+      <li>Community Language Learning (CLL): Pendekatan humanistik yang memandang mahasiswa sebagai satu komunitas utuh, di mana interaksi sosial dan rasa aman psikologis digunakan untuk menurunkan kecemasan saat belajar bahasa Inggris.</li>
+      <li>Small Group Discussion: Pendekatan berbasis diskusi kelompok kecil untuk memicu partisipasi aktif mahasiswa, melatih daya kritis, serta membangun kepercayaan diri dalam mengemukakan pendapat secara lisan.</li>
+      <li>Interactive Digital Learning: Integrasi alat digital interaktif seperti Wordwall dalam proses pembelajaran kelas untuk memperkaya penguasaan kosakata secara menyenangkan dan aplikatif.</li>
+      <li>Pendekatan Pedagogik Berbasis Gain Ternormalisasi: Model pembelajaran eksperimental yang terukur untuk membandingkan dan mengevaluasi efisiensi peningkatan kompetensi nyata siswa sebelum dan sesudah intervensi kelas.</li>
+    </ul>
+  </div>
+
+    <div class="stats">
+      <div class="stat"><b>20+</b><span>Tahun Mengajar</span></div>
+      <div class="stat"><b>25+</b><span>Publikasi Ilmiah</span></div>
+      <div class="stat"><b>5+</b><span>Mata Kuliah Diampu</span></div>
+    </div>
+
+    <div class="social-row">
+      <a href="#" class="social-btn" target="_blank" rel="noopener">LinkedIn</a>
+      <a href="#" class="social-btn" target="_blank" rel="noopener">Instagram</a>
+      <a href="mailto:nama@kampus.ac.id" class="social-btn">Email</a>
+    </div>
+  </div>
+</section>
+
+<section class="wrap visitors" id="pengunjung">
+  <div class="section-head">
+    <div>
+      <div class="eyebrow">Riwayat Klik</div>
+      <h2>Tautan yang <span class="accent">Baru Dibuka</span></h2>
+    </div>
+  </div>
+
+  <div class="visitor-table">
+    <div class="v-row head">
+      <div></div><div>Aktivitas</div><div>Tautan Dibuka</div><div>Waktu</div>
+    </div>
+    <div id="visitorList"></div>
+  </div>
+
+  <div class="live-note"><span class="live-dot"></span> Riwayat ini  akan direset otomatis tiap 24 jam. </div>
+</section>
+
+<footer>
+  Dibuat untuk portofolio akademik — <b>Dr. Wahyu Satya Gumelar, M.MPd</b> · 2026
+</footer>
+
+<!-- ===== MODAL LOGIN OWNER ===== -->
+<div id="loginModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.4); z-index:100; align-items:center; justify-content:center;">
+  <form onsubmit="return doLogin(event)" style="background:#fff; border-radius:var(--radius); padding:28px; max-width:340px; width:90%; display:flex; flex-direction:column; gap:12px;">
+    <strong style="font-size:15px;">Masuk sebagai Pemilik</strong>
+    <input type="email" id="loginEmail" placeholder="Email" required style="padding:10px 12px; border-radius:8px; border:1px solid var(--line);">
+    <input type="password" id="loginPassword" placeholder="Password" required style="padding:10px 12px; border-radius:8px; border:1px solid var(--line);">
+    <div style="display:flex; gap:8px;">
+      <button type="submit" class="add-btn" style="flex:1;">Masuk</button>
+      <button type="button" onclick="toggleLoginBox()" style="flex:1; background:var(--line); border-radius:999px; padding:12px 24px; font-weight:600; font-size:13.5px;">Batal</button>
+    </div>
+    <span id="loginError" style="color:#c0392b; font-size:12px;"></span>
+  </form>
+</div>
+
+<!-- ===== MODAL ISI NAMA PENGUNJUNG — muncul sekali sebelum buka tautan ===== -->
+<div id="guestModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.4); z-index:100; align-items:center; justify-content:center;">
+  <form onsubmit="return submitGuestForm(event)" style="background:#fff; border-radius:var(--radius); padding:28px; max-width:320px; width:90%; display:flex; flex-direction:column; gap:12px;">
+    <strong style="font-size:15px;">Sebelum lanjut, isi nama dulu ya</strong>
+    <input type="text" id="guestName" placeholder="Nama" required style="padding:10px 12px; border-radius:8px; border:1px solid var(--line);">
+    <button type="submit" class="add-btn">Lanjutkan</button>
+  </form>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
