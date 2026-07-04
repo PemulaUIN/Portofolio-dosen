@@ -72,7 +72,7 @@ async function submitGuestForm(e){
   if(!nama) return false;
 
   await sb.from('pengunjung').insert({ nama, link: pendingLink.title });
-  await sb.from('tautan').update({ views: pendingLink.views + 1 }).eq('id', pendingLink.id);
+  await sb.rpc('increment_views', { link_id: pendingLink.id });
 
   document.getElementById('guestModal').style.display = 'none';
   document.getElementById('guestName').value = '';
