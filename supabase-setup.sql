@@ -61,16 +61,6 @@ as $$
 $$;
 grant execute on function increment_views(bigint) to anon, authenticated;
 
--- ==========================================================
--- ===== SETUP STORAGE BUCKET UNTUK UPLOAD FILE FOTO =====
--- ==========================================================
--- 1) Buka Supabase Dashboard -> Storage -> New Bucket
---    Nama bucket: foto-galeri
---    Centang "Public bucket" (biar foto bisa diakses semua orang tanpa login)
---
--- 2) Setelah bucket dibuat, jalankan policy di bawah ini supaya
---    hanya owner (login) yang boleh upload, tapi semua orang boleh lihat/download.
-
 create policy "publik lihat file foto-galeri"
 on storage.objects for select
 using ( bucket_id = 'foto-galeri' );
