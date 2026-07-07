@@ -1,12 +1,20 @@
 // ========================================================
-// GANTI DUA NILAI INI dengan punya kamu dari Supabase:
-// Settings -> API -> Project URL & anon public key
+// Konfigurasi Supabase
 // ========================================================
 const SUPABASE_URL = "https://ihkftmiucpttbrawddub.supabase.co";
 const SUPABASE_ANON_KEY = "sb_publishable_Srgrliy-MvWA2JnGp7Q8jw_xJBY8DP1";
+
+// URL foto profil dosen (dari Supabase Storage)
+const photoUrl = "https://ihkftmiucpttbrawddub.supabase.co/storage/v1/object/sign/foto-profil/poto%20dosen.jpeg?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV8yOWE4MDI3ZS0zOTNjLTRhNzktODFhNi1hYzBlOTY1MjBlODIiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJmb3RvLXByb2ZpbC9wb3RvIGRvc2VuLmpwZWciLCJzY29wZSI6ImRvd25sb2FkIiwiaWF0IjoxNzgzMzAyMTIzLCJleHAiOjE4MTQ4MzgxMjN9.tSZh_QsNIX2XNtsBEAwzY2pC5mj14-hocRbBslsB-gI";
+
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 let pendingLink = null;
+let photos = [];
+let currentSlide = 0;
+let autoplayTimer = null;
+let lightboxIndex = 0;
+const AUTOPLAY_MS = 4000;
 
 function initials(text){
   return text.split(' ').map(w => w[0]).join('').slice(0,2).toUpperCase();
@@ -86,6 +94,173 @@ async function submitGuestForm(e){
   return false;
 }
 
+/* ===================== GALERI FOTO (slider) ===================== */
+async function renderPhotos(){
+  const { data, error } = await sb.from('foto').select('*').order('urutan', { ascending: true }).order('id');
+  photos = (!error && data) ? data : [];
+  buildSlider();
+}
+
+function buildSlider(){
+  const track = document.getElementById('sliderTrack');
+  const dotsWrap = document.getElementById('sliderDots');
+  if(!track || !dotsWrap) return;
+
+  if(!photos.length){
+    track.innerHTML = `<div class="empty-note" style="flex:0 0 100%;"> Tambahkan Poto lewat Panel Pemilik di bawah.</div>`;
+    dotsWrap.innerHTML = '';
+    stopAutoplay();
+    return;
+  }
+
+  track.innerHTML = photos.map((p, i) => `
+    <div class="slide" onclick="openLightbox(${i})">
+      <img src="${p.url}" alt="${(p.keterangan || 'Foto galeri').replace(/"/g,'&quot;')}" loading="lazy">
+      ${p.keterangan ? `<div class="slide-caption">${p.keterangan}</div>` : ''}
+    </div>
+  `).join('');
+
+  dotsWrap.innerHTML = photos.map((_, i) =>
+    `<span class="dot-ind" onclick="goToSlide(${i})"></span>`
+  ).join('');
+
+  currentSlide = 0;
+  updateSliderPosition();
+  startAutoplay();
+}
+
+function updateSliderPosition(){
+  const track = document.getElementById('sliderTrack');
+  if(!track) return;
+  track.style.transform = `translateX(-${currentSlide * 100}%)`;
+  document.querySelectorAll('.dot-ind').forEach((d, i) => d.classList.toggle('active', i === currentSlide));
+}
+
+function goToSlide(i, keepAutoplay){
+  if(!photos.length) return;
+  currentSlide = (i + photos.length) % photos.length;
+  updateSliderPosition();
+  if(!keepAutoplay) startAutoplay();
+}
+
+function nextSlide(){ goToSlide(currentSlide + 1); }
+function prevSlide(){ goToSlide(currentSlide - 1); }
+
+function startAutoplay(){
+  stopAutoplay();
+  if(photos.length > 1){
+    autoplayTimer = setInterval(() => goToSlide(currentSlide + 1, true), AUTOPLAY_MS);
+  }
+}
+function stopAutoplay(){
+  if(autoplayTimer){ clearInterval(autoplayTimer); autoplayTimer = null; }
+}
+
+/* ===== Lightbox (tampilan fullscreen saat foto diklik) ===== */
+function openLightbox(i){
+  if(!photos.length) return;
+  lightboxIndex = i;
+  updateLightboxContent();
+  document.getElementById('lightboxModal').style.display = 'flex';
+  stopAutoplay();
+}
+
+function closeLightbox(){
+  document.getElementById('lightboxModal').style.display = 'none';
+  startAutoplay();
+}
+
+function updateLightboxContent(){
+  const p = photos[lightboxIndex];
+  document.getElementById('lightboxImg').src = p.url;
+  document.getElementById('lightboxImg').alt = p.keterangan || 'Foto galeri';
+  document.getElementById('lightboxCaption').textContent = p.keterangan || '';
+}
+
+function lightboxNext(){
+  lightboxIndex = (lightboxIndex + 1) % photos.length;
+  updateLightboxContent();
+}
+function lightboxPrev(){
+  lightboxIndex = (lightboxIndex - 1 + photos.length) % photos.length;
+  updateLightboxContent();
+}
+
+document.addEventListener('keydown', (e) => {
+  const modal = document.getElementById('lightboxModal');
+  if(!modal || modal.style.display === 'none') return;
+  if(e.key === 'Escape') closeLightbox();
+  if(e.key === 'ArrowRight') lightboxNext();
+  if(e.key === 'ArrowLeft') lightboxPrev();
+});
+
+function toggleOwnerPhotoForm(){
+  const form = document.getElementById('ownerPhotoForm');
+  const chev = document.getElementById('chevronPhoto');
+  form.classList.toggle('open');
+  chev.style.transform = form.classList.contains('open') ? 'rotate(180deg)' : 'rotate(0deg)';
+}
+
+const PHOTO_BUCKET = 'foto-galeri';
+
+async function addPhoto(e){
+  e.preventDefault();
+  const fileInput = document.getElementById('inPhotoFile');
+  const urlInput = document.getElementById('inPhotoUrl');
+  const keterangan = document.getElementById('inPhotoDesc').value.trim();
+  const statusEl = document.getElementById('photoUploadStatus');
+  const btn = document.getElementById('addPhotoBtn');
+  const file = fileInput.files[0];
+  let url = urlInput.value.trim();
+
+  if(!file && !url){
+    alert('Pilih file JPG/PNG atau isi URL gambar dulu.');
+    return false;
+  }
+
+  btn.disabled = true;
+
+  if(file){
+    const ext = file.name.split('.').pop();
+    const path = `foto-${Date.now()}.${ext}`;
+    statusEl.textContent = 'Mengunggah file...';
+
+    const { error: uploadError } = await sb.storage.from(PHOTO_BUCKET).upload(path, file, {
+      cacheControl: '3600',
+      upsert: false
+    });
+
+    if(uploadError){
+      statusEl.textContent = '';
+      btn.disabled = false;
+      alert('Gagal upload file. Pastikan bucket "foto-galeri" sudah dibuat dan kamu sudah login.');
+      console.log('Detail error upload foto:', uploadError);
+      return false;
+    }
+
+    const { data: publicUrlData } = sb.storage.from(PHOTO_BUCKET).getPublicUrl(path);
+    url = publicUrlData.publicUrl;
+  }
+
+  statusEl.textContent = 'Menyimpan...';
+  const { error } = await sb.from('foto').insert({ url, keterangan });
+
+  statusEl.textContent = '';
+  btn.disabled = false;
+
+  if(error){
+    alert('Gagal menambah foto. Pastikan kamu sudah login.');
+    console.log('Detail error tambah foto:', error);
+    return false;
+  }
+
+  fileInput.value = '';
+  urlInput.value = '';
+  document.getElementById('inPhotoDesc').value = '';
+  renderPhotos();
+  return false;
+}
+
 /* ===================== LOGIN OWNER ===================== */
 function toggleLoginBox(){
   const box = document.getElementById('loginModal');
@@ -117,6 +292,7 @@ async function doLogout(){
 function setLoggedInUI(isLoggedIn){
   const btn = document.getElementById('loginToggleBtn');
   document.getElementById('ownerPanel').style.display = isLoggedIn ? 'block' : 'none';
+  document.getElementById('ownerPhotoPanel').style.display = isLoggedIn ? 'block' : 'none';
   btn.textContent = isLoggedIn ? 'Keluar' : 'Masuk';
   btn.onclick = isLoggedIn ? doLogout : toggleLoginBox;
 }
@@ -179,8 +355,6 @@ function toggleAbout(headEl){
 }
 
 /* ===================== FOTO PROFIL ===================== */
-const photoUrl = "";
-
 function renderPhoto(){
   const img = document.getElementById('profilePhoto');
   const placeholder = document.getElementById('avatarPlaceholder');
@@ -199,4 +373,5 @@ function renderPhoto(){
 renderLinks();
 renderVisitors();
 renderPhoto();
+renderPhotos();
 checkLoginStatus();
